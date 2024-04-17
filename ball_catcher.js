@@ -6,17 +6,19 @@ class BallBouncer {
     this.width = this.bb.width;
     this.height = this.bb.height;
 
+    this.canvas.style.backgroundColor = "#DEEFE7";    
+
     // // Paddle properties
     this.paddleWidth = 100;
-    this.paddleHeight = 10;
+    this.paddleHeight = 15;
     this.paddleX = (this.width - this.paddleWidth) / 2;
-    this.paddleSpeed = 12;
+    this.paddleSpeed = 22;
 
     // // Ball properties
-    this.ballRadius = 10;
-    this.ballColor = "#FF5733";
-    this.ballSpeedX = 3;
-    this.ballSpeedY = -3;
+    this.ballRadius = 18;
+    this.ballColor = "#159A9C";
+    this.ballSpeedX = 20;
+    this.ballSpeedY = -20;
     this.ballX = Math.random() * (this.width - this.ballRadius * 2) + this.ballRadius;
     this.ballY = this.height - this.paddleHeight - this.ballRadius;
 
@@ -36,9 +38,24 @@ class BallBouncer {
   }
 
   drawPaddle() {
-    this.ctx.fillStyle = "#3366CC";
-    this.ctx.fillRect(this.paddleX, this.height - this.paddleHeight, this.paddleWidth, this.paddleHeight);
-  }
+    // Define paddle styles
+    const paddleColor = "#002333"; // Dark blue color
+    const borderRadius = 10; // Border radius for rounded corners
+
+    // Draw paddle
+    this.ctx.fillStyle = paddleColor;
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.paddleX + borderRadius, this.height - this.paddleHeight);
+    this.ctx.lineTo(this.paddleX + this.paddleWidth - borderRadius, this.height - this.paddleHeight);
+    this.ctx.quadraticCurveTo(this.paddleX + this.paddleWidth, this.height - this.paddleHeight, this.paddleX + this.paddleWidth, this.height - this.paddleHeight + borderRadius);
+    this.ctx.lineTo(this.paddleX + this.paddleWidth, this.height);
+    this.ctx.lineTo(this.paddleX, this.height);
+    this.ctx.lineTo(this.paddleX, this.height - this.paddleHeight + borderRadius);
+    this.ctx.quadraticCurveTo(this.paddleX, this.height - this.paddleHeight, this.paddleX + borderRadius, this.height - this.paddleHeight);
+    this.ctx.closePath();
+    this.ctx.fill();
+}
+
 
   drawBall() {
     this.ctx.beginPath();
@@ -114,15 +131,36 @@ class BallBouncer {
   }
 
   drawGameName() {
+    // Background box
+    this.ctx.fillStyle = "#002333";
+    this.ctx.fillRect(10, 0, 160, 30);
+
+    // Text
     this.ctx.font = "16px Arial";
-    this.ctx.fillStyle = "#FF0000";
-    this.ctx.fillText("PING PONG GAME", 20, 30);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("PING PONG GAME", 20, 20);
   }
 
+
     drawGameOver() {
-      this.ctx.font = "30px Arial";
+      this.canvas.style.backgroundColor = "#505653";
+      this.ctx.font = "40px Arial";
       this.ctx.fillStyle = "#FF5733";
-      this.ctx.fillText("Game Over!", this.width / 2 - 100, this.height / 2);
+      this.ctx.fillText("GAME OVER!", this.width / 2 - 135, this.height / 2.25);
+
+      // Background box
+      this.ctx.fillStyle = "#F2CDAC";
+      this.ctx.fillRect(this.width/2.50,this.height / 2, this.width / 2 - 450, 90);
+
+      // Text
+      this.ctx.font = "20px Arial";
+      this.ctx.fillStyle = "black";
+      this.ctx.fillText("Score : "+this.score, this.width / 2 - 43, this.height/2+41);
+
+      // Text
+      this.ctx.font = "20px Arial";
+      this.ctx.fillStyle = "#ab0c0f";
+      this.ctx.fillText("Reload Page to play again!", this.width / 2 - 125, this.height/2+65);
     }
 
     clearCanvas() {
