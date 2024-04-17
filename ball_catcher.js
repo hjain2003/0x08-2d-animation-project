@@ -26,7 +26,10 @@ class BallBouncer {
     this.gameOver = false;
 
     // //sound effect
-    this.paddleSound = new Audio("shortfart.mp3");
+    this.paddleSound = new Audio("successful_bounce.mp3");
+    this.gameOverSound = new Audio("game_over.mp3");
+    this.missBounceSound = new Audio("miss_bounce.mp3");
+    this.gameStartSound = new Audio("game-start.mp3");
 
     // Event listeners for controls
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
@@ -81,9 +84,13 @@ class BallBouncer {
       if (this.ballY + this.ballRadius >= this.height) {
         this.lives--;
         if (this.lives === 0) {
+          // Play the game over sound
+          this.gameOverSound.play();
           this.gameOver = true;
         } else {
           this.resetBall();
+          // Play the miss sound
+          this.missBounceSound.play();
         }
       }
     }
@@ -97,13 +104,19 @@ class BallBouncer {
   drawScore() {
     this.ctx.font = "16px Arial";
     this.ctx.fillStyle = "#0000FF";
-    this.ctx.fillText("Score: " + this.score, 20, 30);
+    this.ctx.fillText("Score: " + this.score, 20, 50);
   }
 
   drawLives() {
     this.ctx.font = "16px Arial";
     this.ctx.fillStyle = "#FF0000";
-    this.ctx.fillText("Lives: " + this.lives, this.width - 120, 30);
+    this.ctx.fillText("Lives: " + this.lives, 20, 70);
+  }
+
+  drawGameName() {
+    this.ctx.font = "16px Arial";
+    this.ctx.fillStyle = "#FF0000";
+    this.ctx.fillText("PING PONG GAME", 20, 30);
   }
 
     drawGameOver() {
@@ -124,6 +137,7 @@ class BallBouncer {
           this.moveBall();
     this.drawScore();
     this.drawLives();
+    this.drawGameName();
         } else {
           this.clearCanvas();
           this.drawGameOver();
