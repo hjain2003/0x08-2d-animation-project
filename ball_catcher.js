@@ -17,8 +17,8 @@ class BallBouncer {
     // // Ball properties
     this.ballRadius = 18;
     this.ballColor = "#159A9C";
-    this.ballSpeedX = 20;
-    this.ballSpeedY = -20;
+    this.ballSpeedX = 3;
+    this.ballSpeedY = -3;
     this.ballX = Math.random() * (this.width - this.ballRadius * 2) + this.ballRadius;
     this.ballY = this.height - this.paddleHeight - this.ballRadius;
 
