@@ -27,6 +27,9 @@ class BallBouncer {
 
     // //sound effect
     this.paddleSound = new Audio("shortfart.mp3");
+
+    // Event listeners for controls
+    document.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
 
   drawPaddle() {
@@ -41,6 +44,56 @@ class BallBouncer {
     this.ctx.fill();
   }
 
+    movePaddle(direction) {
+      if (direction === "left") {
+        this.paddleX = Math.max(0, this.paddleX - this.paddleSpeed);
+      } else if (direction === "right") {
+        this.paddleX = Math.min(this.width - this.paddleWidth, this.paddleX + this.paddleSpeed);
+      }
+    }
+
+    moveBall() {
+      this.ballX += this.ballSpeedX;
+      this.ballY += this.ballSpeedY;
+
+      // Collision with paddle
+      if (
+        this.ballY + this.ballRadius >= this.height - this.paddleHeight &&
+        this.ballX >= this.paddleX &&
+        this.ballX <= this.paddleX + this.paddleWidth
+      ) {
+        this.ballSpeedY = -this.ballSpeedY;
+        this.score++;
+
+        // Play the paddle sound
+        this.paddleSound.play();
+      }
+
+      // Collision with walls
+      if (this.ballX + this.ballRadius >= this.width || this.ballX - this.ballRadius <= 0) {
+        this.ballSpeedX = -this.ballSpeedX;
+      }
+      if (this.ballY - this.ballRadius <= 0) {
+        this.ballSpeedY = -this.ballSpeedY;
+      }
+
+      // Out of bounds (ball missed)
+      if (this.ballY + this.ballRadius >= this.height) {
+        this.lives--;
+        if (this.lives === 0) {
+          this.gameOver = true;
+        } else {
+          this.resetBall();
+        }
+      }
+    }
+
+    resetBall() {
+      this.ballX = Math.random() * (this.width - this.ballRadius * 2) + this.ballRadius;
+      this.ballY = this.height - this.paddleHeight - this.ballRadius;
+      this.ballSpeedY = -Math.abs(this.ballSpeedY); // reset ball direction
+    }
+
   drawScore() {
     this.ctx.font = "16px Arial";
     this.ctx.fillStyle = "#0000FF";
@@ -53,12 +106,37 @@ class BallBouncer {
     this.ctx.fillText("Lives: " + this.lives, this.width - 120, 30);
   }
 
+    drawGameOver() {
+      this.ctx.font = "30px Arial";
+      this.ctx.fillStyle = "#FF5733";
+      this.ctx.fillText("Game Over!", this.width / 2 - 100, this.height / 2);
+    }
+
+    clearCanvas() {
+      this.ctx.clearRect(0, 0, this.width, this.height);
+    }
+
   update() {
+        if (!this.gameOver) {
+          this.clearCanvas();
     this.drawPaddle();
     this.drawBall();
+          this.moveBall();
     this.drawScore();
     this.drawLives();
+        } else {
+          this.clearCanvas();
+          this.drawGameOver();
+        }
   }
+
+    handleKeyDown(event) {
+      if (event.key === "ArrowLeft") {
+        this.movePaddle("left");
+      } else if (event.key === "ArrowRight") {
+        this.movePaddle("right");
+      }
+    }
 
   run() {
     this.update();
