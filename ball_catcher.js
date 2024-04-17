@@ -6,7 +6,7 @@ class BallBouncer {
     this.width = this.bb.width;
     this.height = this.bb.height;
 
-    this.canvas.style.backgroundColor = "#DEEFE7";    
+    this.canvas.style.backgroundColor = "#DEEFE7";
 
     // // Paddle properties
     this.paddleWidth = 100;
@@ -17,8 +17,8 @@ class BallBouncer {
     // // Ball properties
     this.ballRadius = 18;
     this.ballColor = "#159A9C";
-    this.ballSpeedX = 3;
-    this.ballSpeedY = -3;
+    this.ballSpeedX = 2;
+    this.ballSpeedY = -2;
     this.ballX = Math.random() * (this.width - this.ballRadius * 2) + this.ballRadius;
     this.ballY = this.height - this.paddleHeight - this.ballRadius;
 
@@ -26,6 +26,7 @@ class BallBouncer {
     this.score = 0;
     this.lives = 3;
     this.gameOver = false;
+    this.gameStarted = false;
 
     // //sound effect
     this.paddleSound = new Audio("successful_bounce.mp3");
@@ -35,6 +36,8 @@ class BallBouncer {
 
     // Event listeners for controls
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
+
+    this.canvas.addEventListener("click", this.startGame.bind(this));
   }
 
   drawPaddle() {
@@ -47,15 +50,24 @@ class BallBouncer {
     this.ctx.beginPath();
     this.ctx.moveTo(this.paddleX + borderRadius, this.height - this.paddleHeight);
     this.ctx.lineTo(this.paddleX + this.paddleWidth - borderRadius, this.height - this.paddleHeight);
-    this.ctx.quadraticCurveTo(this.paddleX + this.paddleWidth, this.height - this.paddleHeight, this.paddleX + this.paddleWidth, this.height - this.paddleHeight + borderRadius);
+    this.ctx.quadraticCurveTo(
+      this.paddleX + this.paddleWidth,
+      this.height - this.paddleHeight,
+      this.paddleX + this.paddleWidth,
+      this.height - this.paddleHeight + borderRadius
+    );
     this.ctx.lineTo(this.paddleX + this.paddleWidth, this.height);
     this.ctx.lineTo(this.paddleX, this.height);
     this.ctx.lineTo(this.paddleX, this.height - this.paddleHeight + borderRadius);
-    this.ctx.quadraticCurveTo(this.paddleX, this.height - this.paddleHeight, this.paddleX + borderRadius, this.height - this.paddleHeight);
+    this.ctx.quadraticCurveTo(
+      this.paddleX,
+      this.height - this.paddleHeight,
+      this.paddleX + borderRadius,
+      this.height - this.paddleHeight
+    );
     this.ctx.closePath();
     this.ctx.fill();
-}
-
+  }
 
   drawBall() {
     this.ctx.beginPath();
@@ -64,59 +76,62 @@ class BallBouncer {
     this.ctx.fill();
   }
 
-    movePaddle(direction) {
-      if (direction === "left") {
-        this.paddleX = Math.max(0, this.paddleX - this.paddleSpeed);
-      } else if (direction === "right") {
-        this.paddleX = Math.min(this.width - this.paddleWidth, this.paddleX + this.paddleSpeed);
-      }
+  movePaddle(direction) {
+    if (direction === "left") {
+      this.paddleX = Math.max(0, this.paddleX - this.paddleSpeed);
+    } else if (direction === "right") {
+      this.paddleX = Math.min(this.width - this.paddleWidth, this.paddleX + this.paddleSpeed);
+    }
+  }
+
+  moveBall() {
+    if (!this.gameStarted) return;
+
+    this.ballX += this.ballSpeedX;
+    this.ballY += this.ballSpeedY;
+
+    // Collision with paddle
+    if (
+      this.ballY + this.ballRadius >= this.height - this.paddleHeight &&
+      this.ballX >= this.paddleX &&
+      this.ballX <= this.paddleX + this.paddleWidth
+    ) {
+      this.ballSpeedY = -this.ballSpeedY;
+      this.score++;
+
+      // Play the paddle sound
+      this.paddleSound.play();
     }
 
-    moveBall() {
-      this.ballX += this.ballSpeedX;
-      this.ballY += this.ballSpeedY;
-
-      // Collision with paddle
-      if (
-        this.ballY + this.ballRadius >= this.height - this.paddleHeight &&
-        this.ballX >= this.paddleX &&
-        this.ballX <= this.paddleX + this.paddleWidth
-      ) {
-        this.ballSpeedY = -this.ballSpeedY;
-        this.score++;
-
-        // Play the paddle sound
-        this.paddleSound.play();
-      }
-
-      // Collision with walls
-      if (this.ballX + this.ballRadius >= this.width || this.ballX - this.ballRadius <= 0) {
-        this.ballSpeedX = -this.ballSpeedX;
-      }
-      if (this.ballY - this.ballRadius <= 0) {
-        this.ballSpeedY = -this.ballSpeedY;
-      }
-
-      // Out of bounds (ball missed)
-      if (this.ballY + this.ballRadius >= this.height) {
-        this.lives--;
-        if (this.lives === 0) {
-          // Play the game over sound
-          this.gameOverSound.play();
-          this.gameOver = true;
-        } else {
-          this.resetBall();
-          // Play the miss sound
-          this.missBounceSound.play();
-        }
-      }
+    // Collision with walls
+    if (this.ballX + this.ballRadius >= this.width || this.ballX - this.ballRadius <= 0) {
+      this.ballSpeedX = -this.ballSpeedX;
+    }
+    if (this.ballY - this.ballRadius <= 0) {
+      this.ballSpeedY = -this.ballSpeedY;
     }
 
-    resetBall() {
-      this.ballX = Math.random() * (this.width - this.ballRadius * 2) + this.ballRadius;
-      this.ballY = this.height - this.paddleHeight - this.ballRadius;
-      this.ballSpeedY = -Math.abs(this.ballSpeedY); // reset ball direction
+    // Out of bounds (ball missed)
+    if (this.ballY + this.ballRadius >= this.height) {
+      this.lives--;
+      if (this.lives === 0) {
+        // Play the game over sound
+        this.gameOverSound.play();
+        this.gameOver = true;
+        this.drawGameOver();
+      } else {
+        this.resetBall();
+        // Play the miss sound
+        this.missBounceSound.play();
+      }
     }
+  }
+
+  resetBall() {
+    this.ballX = Math.random() * (this.width - this.ballRadius * 2) + this.ballRadius;
+    this.ballY = this.height - this.paddleHeight - this.ballRadius;
+    this.ballSpeedY = -Math.abs(this.ballSpeedY); // reset ball direction
+  }
 
   drawScore() {
     this.ctx.font = "16px Arial";
@@ -139,59 +154,80 @@ class BallBouncer {
     this.ctx.font = "16px Arial";
     this.ctx.fillStyle = "white";
     this.ctx.fillText("PING PONG GAME", 20, 20);
+    if (!this.gameStarted) {
+      // Display "Click to Start" message at the center of the canvas
+      const text = "Click to Start";
+      const textWidth = this.ctx.measureText(text).width;
+      const textX = (this.width - textWidth) / 2;
+      const textY = this.height / 2;
+
+      this.ctx.font = "30px Arial";
+      this.ctx.fillStyle = "#FF5733";
+      this.ctx.fillText(text, textX, textY);
+    }
   }
 
+  drawGameOver() {
+    this.canvas.style.backgroundColor = "#505653";
+    this.ctx.font = "40px Arial";
+    this.ctx.fillStyle = "#FF5733";
+    this.ctx.fillText("GAME OVER!", this.width / 2 - 135, this.height / 2.25);
 
-    drawGameOver() {
-      this.canvas.style.backgroundColor = "#505653";
-      this.ctx.font = "40px Arial";
-      this.ctx.fillStyle = "#FF5733";
-      this.ctx.fillText("GAME OVER!", this.width / 2 - 135, this.height / 2.25);
+    // Background box
+    this.ctx.fillStyle = "#F2CDAC";
+    this.ctx.fillRect(this.width / 2.5, this.height / 2, this.width / 2 - 450, 90);
 
-      // Background box
-      this.ctx.fillStyle = "#F2CDAC";
-      this.ctx.fillRect(this.width/2.50,this.height / 2, this.width / 2 - 450, 90);
+    // Text
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "black";
+    this.ctx.fillText("Score : " + this.score, this.width / 2 - 43, this.height / 2 + 41);
 
-      // Text
-      this.ctx.font = "20px Arial";
-      this.ctx.fillStyle = "black";
-      this.ctx.fillText("Score : "+this.score, this.width / 2 - 43, this.height/2+41);
+    // Text
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "#ab0c0f";
+    this.ctx.fillText("Reload Page to play again!", this.width / 2 - 125, this.height / 2 + 65);
+  }
 
-      // Text
-      this.ctx.font = "20px Arial";
-      this.ctx.fillStyle = "#ab0c0f";
-      this.ctx.fillText("Reload Page to play again!", this.width / 2 - 125, this.height/2+65);
-    }
-
-    clearCanvas() {
-      this.ctx.clearRect(0, 0, this.width, this.height);
-    }
+  clearCanvas() {
+    this.ctx.clearRect(0, 0, this.width, this.height);
+  }
 
   update() {
-        if (!this.gameOver) {
-          this.clearCanvas();
-    this.drawPaddle();
-    this.drawBall();
-          this.moveBall();
-    this.drawScore();
-    this.drawLives();
-    this.drawGameName();
-        } else {
-          this.clearCanvas();
-          this.drawGameOver();
-        }
+    if (!this.gameOver) {
+      this.clearCanvas();
+      this.drawPaddle();
+      this.drawBall();
+      this.moveBall();
+      this.drawScore();
+      this.drawLives();
+      this.drawGameName();
+    } else {
+      this.clearCanvas();
+      this.drawGameOver();
+    }
   }
 
-    handleKeyDown(event) {
-      if (event.key === "ArrowLeft") {
-        this.movePaddle("left");
-      } else if (event.key === "ArrowRight") {
-        this.movePaddle("right");
-      }
+  handleKeyDown(event) {
+    if (event.key === "ArrowLeft") {
+      this.movePaddle("left");
+    } else if (event.key === "ArrowRight") {
+      this.movePaddle("right");
     }
+  }
 
-  run() {
+  startGame() {
+    this.gameStartSound.play();
+    this.canvas.removeEventListener("click", this.startGame.bind(this));
+    this.canvas.style.cursor = "none";
+    this.gameStarted = true;
     this.update();
     requestAnimationFrame(this.run.bind(this));
+  }
+
+  run() {
+    if (!this.gameOver) {
+      this.update();
+      requestAnimationFrame(this.run.bind(this));
+    }
   }
 }
