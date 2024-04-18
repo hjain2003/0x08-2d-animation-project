@@ -34,6 +34,14 @@ class BallBouncer {
     this.missBounceSound = new Audio("miss_bounce.mp3");
     this.gameStartSound = new Audio("game-start.mp3");
 
+    // Stopwatch properties
+    this.stopwatchRadius = 30;
+    this.stopwatchColor = "#FF0000";
+    this.stopwatchX = 50;
+    this.stopwatchY = 120;
+    this.stopwatchStartTime = 0;
+    this.stopwatchInterval = null;
+
     // Event listeners for controls
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
 
@@ -175,17 +183,55 @@ class BallBouncer {
 
     // Background box
     this.ctx.fillStyle = "#F2CDAC";
-    this.ctx.fillRect(this.width / 2.5, this.height / 2, this.width / 2 - 450, 90);
+    this.ctx.fillRect(this.width / 2.5, this.height / 2, this.width / 2 - 450, 100);
+
+    // Display duration
+    const duration = Math.floor(this.getSecondsElapsed()) % 60;
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "black";
+    this.ctx.fillText("You lasted: " + duration + " seconds", this.width / 2 - 100, this.height / 2 + 25);
 
     // Text
     this.ctx.font = "20px Arial";
     this.ctx.fillStyle = "black";
-    this.ctx.fillText("Score : " + this.score, this.width / 2 - 43, this.height / 2 + 41);
+    this.ctx.fillText("Score : " + this.score, this.width / 2 - 43, this.height / 2 + 61);
 
     // Text
     this.ctx.font = "20px Arial";
     this.ctx.fillStyle = "#ab0c0f";
-    this.ctx.fillText("Reload Page to play again!", this.width / 2 - 125, this.height / 2 + 65);
+    this.ctx.fillText("Reload Page to play again!", this.width / 2 - 125, this.height / 2 + 90);
+  }
+
+  drawStopwatch() {
+    this.ctx.beginPath();
+    this.ctx.arc(this.stopwatchX, this.stopwatchY, this.stopwatchRadius + 2, 0, Math.PI * 2);
+    this.ctx.fillStyle = "#000000";
+    this.ctx.fill();
+
+    if (this.gameStarted) {
+      this.ctx.beginPath();
+      this.ctx.strokeStyle = this.stopwatchColor;
+      this.ctx.lineWidth = 2;
+      this.ctx.moveTo(this.stopwatchX, this.stopwatchY);
+      this.ctx.lineTo(
+        this.stopwatchX + this.stopwatchRadius * Math.cos((2 * Math.PI * this.getSecondsElapsed()) / 60 - Math.PI / 2),
+        this.stopwatchY + this.stopwatchRadius * Math.sin((2 * Math.PI * this.getSecondsElapsed()) / 60 - Math.PI / 2)
+      );
+      this.ctx.stroke();
+    }
+
+    const secondsText = Math.floor(this.getSecondsElapsed()) % 60;
+    this.ctx.font = "16px Arial";
+    this.ctx.fillStyle = "#000000";
+    this.ctx.fillText(secondsText, this.stopwatchX - 8, this.stopwatchY + this.stopwatchRadius + 20);
+  }
+
+  getSecondsElapsed() {
+    if (this.gameStarted) {
+      return (Date.now() - this.stopwatchStartTime) / 1000;
+    } else {
+      return 0;
+    }
   }
 
   clearCanvas() {
@@ -201,6 +247,7 @@ class BallBouncer {
       this.drawScore();
       this.drawLives();
       this.drawGameName();
+      this.drawStopwatch();
     } else {
       this.clearCanvas();
       this.drawGameOver();
@@ -220,7 +267,14 @@ class BallBouncer {
     this.canvas.removeEventListener("click", this.startGame.bind(this));
     this.canvas.style.cursor = "none";
     this.gameStarted = true;
-    this.update();
+    this.stopwatchStartTime = Date.now();
+    this.stopwatchInterval = setInterval(() => {
+      if (!this.gameOver) {
+        this.update();
+      } else {
+        clearInterval(this.stopwatchInterval); // Stop the stopwatch when the game is over
+      }
+    }, 1000); // Update stopwatch every second
     requestAnimationFrame(this.run.bind(this));
   }
 
