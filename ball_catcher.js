@@ -122,12 +122,12 @@ class BallBouncer {
       } else {
         this.resetBall();
         // Play the miss sound
-        this.missBounceSound.play();
       }
     }
   }
 
   resetBall() {
+    this.missBounceSound.play();
     this.ballX = Math.random() * (this.width - this.ballRadius * 2) + this.ballRadius;
     this.ballY = this.height - this.paddleHeight - this.ballRadius;
     this.ballSpeedY = -Math.abs(this.ballSpeedY); // reset ball direction
