@@ -17,7 +17,7 @@ class BallBouncer {
     // // Ball properties
     this.ballRadius = 18;
     this.ballColor = "#159A9C";
-    //Different devices show different speeds according to their system specifications like frame rate, hardware performance etcetera
+    //Different devices show different speeds according to their system specifications like frame rate, hardware performance etc.
     this.ballSpeedX = 2;class BallBouncer {
   constructor(canvasSelector) {
     this.canvas = document.querySelector(canvasSelector);
