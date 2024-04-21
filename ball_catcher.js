@@ -36,7 +36,7 @@ class BallBouncer {
 
     // Stopwatch properties
     this.stopwatchRadius = 30;
-    this.stopwatchColor = "#000000";
+    this.stopwatchColor = "#159A9C";
     this.stopwatchX = 50;
     this.stopwatchY = 120;
     this.stopwatchStartTime = 0;
@@ -45,7 +45,13 @@ class BallBouncer {
     // Event listeners for controls
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
 
-    this.canvas.addEventListener("click", this.startGame.bind(this));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        if (!this.gameStarted) {
+          this.startGame();
+        }
+      }
+    });
   }
 
   drawPaddle() {
@@ -164,9 +170,9 @@ class BallBouncer {
     this.ctx.fillText("PING PONG GAME", 20, 20);
     if (!this.gameStarted) {
       // Display "Click to Start" message at the center of the canvas
-      const text = "Click to Start";
+      const text = "Press Enter to Start";
       const textWidth = this.ctx.measureText(text).width;
-      const textX = (this.width - textWidth) / 2;
+      const textX = (this.width - 250) / 2;
       const textY = this.height / 2;
 
       this.ctx.font = "30px Arial";
@@ -203,15 +209,23 @@ class BallBouncer {
   }
 
   drawStopwatch() {
+    // Draw outer border
+    this.ctx.beginPath();
+    this.ctx.arc(this.stopwatchX, this.stopwatchY, this.stopwatchRadius + 4, 0, Math.PI * 2);
+    this.ctx.strokeStyle = "#159A9C";
+    this.ctx.lineWidth = 3;
+    this.ctx.stroke();
+  
+    // Draw inner circle
     this.ctx.beginPath();
     this.ctx.arc(this.stopwatchX, this.stopwatchY, this.stopwatchRadius + 2, 0, Math.PI * 2);
     this.ctx.fillStyle = "#ffffff";
     this.ctx.fill();
-
+  
     if (this.gameStarted) {
       this.ctx.beginPath();
       this.ctx.strokeStyle = this.stopwatchColor;
-      this.ctx.lineWidth = 2;
+      this.ctx.lineWidth = 3;
       this.ctx.moveTo(this.stopwatchX, this.stopwatchY);
       this.ctx.lineTo(
         this.stopwatchX + this.stopwatchRadius * Math.cos((2 * Math.PI * this.getSecondsElapsed()) / 60 - Math.PI / 2),
@@ -219,12 +233,13 @@ class BallBouncer {
       );
       this.ctx.stroke();
     }
-
+  
     const secondsText = Math.floor(this.getSecondsElapsed()) % 60;
     this.ctx.font = "16px Arial";
     this.ctx.fillStyle = "#000000";
     this.ctx.fillText(secondsText, this.stopwatchX - 8, this.stopwatchY + this.stopwatchRadius + 20);
   }
+  
 
   getSecondsElapsed() {
     if (this.gameStarted) {
