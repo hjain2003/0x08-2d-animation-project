@@ -12,13 +12,13 @@ class BallBouncer {
     this.paddleWidth = 100;
     this.paddleHeight = 15;
     this.paddleX = (this.width - this.paddleWidth) / 2;
-    this.paddleSpeed = 22;
+    this.paddleSpeed = 30;
 
     // // Ball properties
     this.ballRadius = 18;
     this.ballColor = "#159A9C";
-    this.ballSpeedX = 2;
-    this.ballSpeedY = -2;
+    this.ballSpeedX = 3;
+    this.ballSpeedY = -3;
     this.ballX = Math.random() * (this.width - this.ballRadius * 2) + this.ballRadius;
     this.ballY = this.height - this.paddleHeight - this.ballRadius;
 
@@ -36,7 +36,7 @@ class BallBouncer {
 
     // Stopwatch properties
     this.stopwatchRadius = 30;
-    this.stopwatchColor = "#FF0000";
+    this.stopwatchColor = "#000000";
     this.stopwatchX = 50;
     this.stopwatchY = 120;
     this.stopwatchStartTime = 0;
@@ -205,7 +205,7 @@ class BallBouncer {
   drawStopwatch() {
     this.ctx.beginPath();
     this.ctx.arc(this.stopwatchX, this.stopwatchY, this.stopwatchRadius + 2, 0, Math.PI * 2);
-    this.ctx.fillStyle = "#000000";
+    this.ctx.fillStyle = "#ffffff";
     this.ctx.fill();
 
     if (this.gameStarted) {
